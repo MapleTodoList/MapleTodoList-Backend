@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryColumn, OneToMany, ManyToOne } from 'typeorm';
+import { Column, Entity, PrimaryColumn, ManyToOne } from 'typeorm';
 import { Section } from './section.entity';
 import { howNumber } from '../types/todo.type';
 
