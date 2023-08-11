@@ -5,6 +5,11 @@ import { TodoService } from './todo.service';
 export class TodoController {
   constructor(private todoService: TodoService) {}
 
+  @Get('/test')
+  test() {
+    this.todoService.resetThursdayTodo();
+  }
+
   @Put('/')
   updataTodoIsClear(
     @Body('character') character,
@@ -49,6 +54,11 @@ export class TodoController {
     this.todoService.updateSection(character, section, field, to);
   }
 
+  @Put('/section')
+  deleteSection(@Body('character') character, @Body('section') section) {
+    this.todoService.deleteSection(character, section);
+  }
+
   @Post('/todo')
   addTodo(
     @Body('section') section,
@@ -67,5 +77,14 @@ export class TodoController {
     @Body('to') to,
   ) {
     this.todoService.updateTodo(character, section, todo, field, to);
+  }
+
+  @Put('/todo')
+  deleteTodo(
+    @Body('character') character,
+    @Body('section') section,
+    @Body('todo') todo,
+  ) {
+    this.todoService.deleteTodo(character, section, todo);
   }
 }

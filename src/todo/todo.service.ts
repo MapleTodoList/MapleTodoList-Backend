@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { Repository } from 'typeorm';
 import { Character } from './entities/character.entity';
 import { Section } from './entities/section.entity';
@@ -213,5 +214,89 @@ export class TodoService {
     todo[field] = to;
 
     await this.todoRepo.save(todo);
+  }
+
+  async deleteSection(characterName, sectionName) {
+    const character = await this.characterRepo.findOne({
+      where: { name: characterName },
+      relations: ['section'],
+    });
+
+    const section = character.section.find((sec) => sec.name === sectionName);
+
+    // Load the section with its todos
+    const sectionWithTodos = await this.sectionRepo.findOne({
+      where: { id: section.id },
+      relations: ['todo'],
+    });
+
+    // Delete associated todos first
+    for (const todo of sectionWithTodos.todo) {
+      await this.todoRepo.remove(todo);
+    }
+
+    // Remove the section
+    await this.sectionRepo.remove(section);
+  }
+
+  async deleteTodo(characterName, sectionName, todoName) {
+    const character = await this.characterRepo.findOne({
+      where: { name: characterName },
+      relations: ['section'],
+    });
+
+    const section = character.section.find((sec) => sec.name === sectionName);
+
+    const todo = await this.todoRepo.findOne({
+      where: { section, name: todoName },
+    });
+
+    // Remove the todo
+    await this.todoRepo.remove(todo);
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async resetDailyTodo() {
+    const dailySections = await this.sectionRepo.find({
+      where: { reset: 'daily' },
+      relations: ['todo'],
+    });
+
+    for (const section of dailySections) {
+      for (const todo of section.todo) {
+        todo.isClear = 0;
+        await this.todoRepo.save(todo);
+      }
+    }
+  }
+
+  @Cron('0 0 * * MON', { timeZone: 'Asia/Seoul' })
+  async resetMondayTodo() {
+    const mondaySections = await this.sectionRepo.find({
+      where: { reset: 'weekly', whenReset: 'monday' },
+      relations: ['todo'],
+    });
+
+    for (const section of mondaySections) {
+      for (const todo of section.todo) {
+        todo.isClear = 0;
+        await this.todoRepo.save(todo);
+      }
+    }
+  }
+
+  @Cron('0 0 * * THU', { timeZone: 'Asia/Seoul' })
+  async resetThursdayTodo() {
+    const thursdaySections = await this.sectionRepo.find({
+      where: { reset: 'weekly', whenReset: 'thursday' },
+      relations: ['todo'],
+    });
+
+    for (const section of thursdaySections) {
+      for (const todo of section.todo) {
+        todo.isClear = 0;
+        await this.todoRepo.save(todo);
+      }
+    }
   }
 }
