@@ -1,14 +1,26 @@
-import { Column, Entity, PrimaryColumn, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Section } from './section.entity';
+import { User } from 'src/auth/user.entity';
 
 @Entity()
 export class Character {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToMany((type) => Section, (section) => section.character)
+  @JoinColumn()
+  @ManyToOne(() => User, (User) => User.character)
+  user: User;
+
+  @OneToMany(() => Section, (section) => section.character)
   section: Section[];
 
-  @Column()
+  @Column('varchar')
   name: string;
 }

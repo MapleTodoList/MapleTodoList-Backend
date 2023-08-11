@@ -1,18 +1,20 @@
-import { Column, Entity, PrimaryColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { Section } from './section.entity';
-import { howNumber } from '../types/todo.type';
 
 @Entity()
 export class Todo {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne((type) => Section, (section) => section.todo)
+  @ManyToOne(() => Section, (section) => section.todo)
   section: Section;
 
   @Column('varchar', { length: 14 })
   name: string;
 
   @Column('int')
-  number: howNumber;
+  number: number;
+
+  @Column('int')
+  isClear: number;
 }

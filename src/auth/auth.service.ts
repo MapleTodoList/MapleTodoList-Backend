@@ -24,7 +24,7 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResDto> {
-    const { id, username, email, password, character } = registerDto;
+    const { id, username, email, password } = registerDto;
 
     const user = await this.userRepository.findOneBy({ id, email, username });
 
@@ -51,7 +51,6 @@ export class AuthService {
       email,
       password: sha256(password),
       accessToken,
-      character,
     });
     await this.userRepository.save(newUser);
 

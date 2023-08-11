@@ -1,14 +1,15 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn, OneToMany } from 'typeorm';
+import { Character } from 'src/todo/entities/character.entity';
 
 @Entity()
 export class User {
   @PrimaryColumn('varchar', { length: 255 })
   id!: string;
 
-  @Column('varchar', { length: 10, unique: true })
+  @Column('varchar', { length: 10 })
   username!: string;
 
-  @Column('varchar', { length: 100, unique: true })
+  @Column('varchar', { length: 100 })
   email!: string;
 
   @Column('text')
@@ -17,6 +18,6 @@ export class User {
   @Column('text')
   accessToken!: string;
 
-  @Column('varchar')
-  character!: string;
+  @OneToMany(() => Character, (character) => character.user)
+  character: Character[];
 }
