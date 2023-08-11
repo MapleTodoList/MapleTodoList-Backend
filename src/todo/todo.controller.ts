@@ -5,11 +5,6 @@ import { TodoService } from './todo.service';
 export class TodoController {
   constructor(private todoService: TodoService) {}
 
-  @Get('/test')
-  test() {
-    this.todoService.resetThursdayTodo();
-  }
-
   @Put('/')
   updataTodoIsClear(
     @Body('character') character,
