@@ -270,7 +270,7 @@ export class TodoService {
     }
   }
 
-  @Cron('0 0 * * MON', { timeZone: 'Asia/Seoul' })
+  @Cron('0 0 * *  SUN', { timeZone: 'Asia/Seoul' })
   async resetMondayTodo() {
     const mondaySections = await this.sectionRepo.find({
       where: { reset: 'weekly', whenReset: 'monday' },
@@ -285,7 +285,7 @@ export class TodoService {
     }
   }
 
-  @Cron('0 0 * * THU', { timeZone: 'Asia/Seoul' })
+  @Cron('0 0 * * WED', { timeZone: 'Asia/Seoul' })
   async resetThursdayTodo() {
     const thursdaySections = await this.sectionRepo.find({
       where: { reset: 'weekly', whenReset: 'thursday' },
