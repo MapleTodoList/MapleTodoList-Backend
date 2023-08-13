@@ -91,6 +91,8 @@ export class TodoService {
     await this.addTodo('일일 심볼', '아르크스', 1);
     await this.addTodo('일일 심볼', '오디움', 1);
     await this.addTodo('일일 심볼', '도원경', 1);
+    await this.addTodo('일일 심볼', '아르테리아', 1);
+    await this.addTodo('일일 심볼', '카르시온', 1);
 
     await this.addTodo('주간 심볼', '에르다 스펙트럼', 1);
     await this.addTodo('주간 심볼', '배고픈 무토', 1);
