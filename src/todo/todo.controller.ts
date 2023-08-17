@@ -61,11 +61,12 @@ export class TodoController {
 
   @Post('/todo')
   addTodo(
+    @Body('character') character,
     @Body('section') section,
     @Body('name') name,
     @Body('number') number,
   ) {
-    this.todoService.addTodo(section, name, number);
+    this.todoService.addTodo(character, section, name, number);
   }
 
   @Patch('/todo')

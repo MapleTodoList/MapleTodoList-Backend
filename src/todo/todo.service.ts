@@ -42,15 +42,22 @@ export class TodoService {
     await this.sectionRepo.save(newSection);
   }
 
-  async addTodo(se, name, number) {
-    const isClear = 0;
-    const section = await this.sectionRepo.findOneBy({ name: se });
-    const newTodo = await this.todoRepo.create({
-      section,
-      name,
-      number,
-      isClear,
+  async addTodo(characterName, sectionName, todoName, todoNumber) {
+    const character = await this.characterRepo.findOne({
+      where: { name: characterName },
     });
+
+    const section = await this.sectionRepo.findOne({
+      where: { character, name: sectionName },
+    });
+
+    const newTodo = this.todoRepo.create({
+      section,
+      name: todoName,
+      number: todoNumber,
+      isClear: 0,
+    });
+
     await this.todoRepo.save(newTodo);
   }
 
@@ -63,73 +70,73 @@ export class TodoService {
     await this.addSection(name, '주간 보스', 'weekly', 'thursday');
     await this.addSection(name, '월간 보스', 'monthly', 'firstOfMonth');
 
-    await this.addTodo('일일 컨텐츠', '데일리 기프트', 1);
-    await this.addTodo('일일 컨텐츠', '몬스터 파크', 1);
-    await this.addTodo('일일 컨텐츠', '마일리지 적립', 1);
-    await this.addTodo('일일 컨텐츠', '유니온 코인', 1);
-    await this.addTodo('일일 컨텐츠', '더 시드', 1);
+    await this.addTodo(name, '일일 컨텐츠', '데일리 기프트', 1);
+    await this.addTodo(name, '일일 컨텐츠', '몬스터 파크', 1);
+    await this.addTodo(name, '일일 컨텐츠', '마일리지 적립', 1);
+    await this.addTodo(name, '일일 컨텐츠', '유니온 코인', 1);
+    await this.addTodo(name, '일일 컨텐츠', '더 시드', 1);
 
-    await this.addTodo('일일 보스', '우르스', 1);
-    await this.addTodo('일일 보스', '자쿰', 1);
-    await this.addTodo('일일 보스', '매그너스', 1);
-    await this.addTodo('일일 보스', '힐라', 1);
-    await this.addTodo('일일 보스', '카웅', 1);
-    await this.addTodo('일일 보스', '파풀라투스', 1);
-    await this.addTodo('일일 보스', '루타비스', 1);
-    await this.addTodo('일일 보스', '반 레온', 1);
-    await this.addTodo('일일 보스', '혼테일', 1);
-    await this.addTodo('일일 보스', '아카이럼', 1);
-    await this.addTodo('일일 보스', '핑크빈', 1);
+    await this.addTodo(name, '일일 보스', '우르스', 1);
+    await this.addTodo(name, '일일 보스', '자쿰', 1);
+    await this.addTodo(name, '일일 보스', '매그너스', 1);
+    await this.addTodo(name, '일일 보스', '힐라', 1);
+    await this.addTodo(name, '일일 보스', '카웅', 1);
+    await this.addTodo(name, '일일 보스', '파풀라투스', 1);
+    await this.addTodo(name, '일일 보스', '루타비스', 1);
+    await this.addTodo(name, '일일 보스', '반 레온', 1);
+    await this.addTodo(name, '일일 보스', '혼테일', 1);
+    await this.addTodo(name, '일일 보스', '아카이럼', 1);
+    await this.addTodo(name, '일일 보스', '핑크빈', 1);
 
-    await this.addTodo('일일 심볼', '소멸의 여로', 1);
-    await this.addTodo('일일 심볼', '츄츄 아일랜드', 1);
-    await this.addTodo('일일 심볼', '레헬른', 1);
-    await this.addTodo('일일 심볼', '아르카나', 1);
-    await this.addTodo('일일 심볼', '모라스', 1);
-    await this.addTodo('일일 심볼', '에스페라', 1);
-    await this.addTodo('일일 심볼', '세르니움', 1);
-    await this.addTodo('일일 심볼', '아르크스', 1);
-    await this.addTodo('일일 심볼', '오디움', 1);
-    await this.addTodo('일일 심볼', '도원경', 1);
-    await this.addTodo('일일 심볼', '아르테리아', 1);
-    await this.addTodo('일일 심볼', '카르시온', 1);
+    await this.addTodo(name, '일일 심볼', '소멸의 여로', 1);
+    await this.addTodo(name, '일일 심볼', '츄츄 아일랜드', 1);
+    await this.addTodo(name, '일일 심볼', '레헬른', 1);
+    await this.addTodo(name, '일일 심볼', '아르카나', 1);
+    await this.addTodo(name, '일일 심볼', '모라스', 1);
+    await this.addTodo(name, '일일 심볼', '에스페라', 1);
+    await this.addTodo(name, '일일 심볼', '세르니움', 1);
+    await this.addTodo(name, '일일 심볼', '아르크스', 1);
+    await this.addTodo(name, '일일 심볼', '오디움', 1);
+    await this.addTodo(name, '일일 심볼', '도원경', 1);
+    await this.addTodo(name, '일일 심볼', '아르테리아', 1);
+    await this.addTodo(name, '일일 심볼', '카르시온', 1);
 
-    await this.addTodo('주간 심볼', '에르다 스펙트럼', 1);
-    await this.addTodo('주간 심볼', '배고픈 무토', 1);
-    await this.addTodo('주간 심볼', '미드나잇 체이서', 1);
-    await this.addTodo('주간 심볼', '스피릿 세이비어', 1);
-    await this.addTodo('주간 심볼', '엔하임 디펜스', 1);
-    await this.addTodo('주간 심볼', '프로텍트 에스페라', 1);
+    await this.addTodo(name, '주간 심볼', '에르다 스펙트럼', 1);
+    await this.addTodo(name, '주간 심볼', '배고픈 무토', 1);
+    await this.addTodo(name, '주간 심볼', '미드나잇 체이서', 1);
+    await this.addTodo(name, '주간 심볼', '스피릿 세이비어', 1);
+    await this.addTodo(name, '주간 심볼', '엔하임 디펜스', 1);
+    await this.addTodo(name, '주간 심볼', '프로텍트 에스페라', 1);
 
-    await this.addTodo('주간 컨텐츠', '무릉 도장', 1);
-    await this.addTodo('주간 컨텐츠', '플래그 레이스', 1);
-    await this.addTodo('주간 컨텐츠', '지하 수로', 1);
-    await this.addTodo('주간 컨텐츠', '야영지 주간 임무', 1);
-    await this.addTodo('주간 컨텐츠', '헤이븐 주간 임무', 1);
+    await this.addTodo(name, '주간 컨텐츠', '무릉 도장', 1);
+    await this.addTodo(name, '주간 컨텐츠', '플래그 레이스', 1);
+    await this.addTodo(name, '주간 컨텐츠', '지하 수로', 1);
+    await this.addTodo(name, '주간 컨텐츠', '야영지 주간 임무', 1);
+    await this.addTodo(name, '주간 컨텐츠', '헤이븐 주간 임무', 1);
 
-    await this.addTodo('주간 보스', '자쿰', 1);
-    await this.addTodo('주간 보스', '매그너스', 1);
-    await this.addTodo('주간 보스', '힐라', 1);
-    await this.addTodo('주간 보스', '파풀라투스', 1);
-    await this.addTodo('주간 보스', '피에르', 1);
-    await this.addTodo('주간 보스', '반반', 1);
-    await this.addTodo('주간 보스', '블러디 퀸', 1);
-    await this.addTodo('주간 보스', '벨룸', 1);
-    await this.addTodo('주간 보스', '핑크빈', 1);
-    await this.addTodo('주간 보스', '시그너스', 1);
-    await this.addTodo('주간 보스', '스우', 1);
-    await this.addTodo('주간 보스', '데미안', 1);
-    await this.addTodo('주간 보스', '가디언 엔젤 슬라임', 1);
-    await this.addTodo('주간 보스', '루시드', 1);
-    await this.addTodo('주간 보스', '윌', 1);
-    await this.addTodo('주간 보스', '거대 괴수 더스크', 1);
-    await this.addTodo('주간 보스', '진 힐라', 1);
-    await this.addTodo('주간 보스', '친위대장 듄켈', 1);
-    await this.addTodo('주간 보스', '선택받은 세렌', 1);
-    await this.addTodo('주간 보스', '감시자 칼로스', 1);
-    await this.addTodo('주간 보스', '카링', 1);
+    await this.addTodo(name, '주간 보스', '자쿰', 1);
+    await this.addTodo(name, '주간 보스', '매그너스', 1);
+    await this.addTodo(name, '주간 보스', '힐라', 1);
+    await this.addTodo(name, '주간 보스', '파풀라투스', 1);
+    await this.addTodo(name, '주간 보스', '피에르', 1);
+    await this.addTodo(name, '주간 보스', '반반', 1);
+    await this.addTodo(name, '주간 보스', '블러디 퀸', 1);
+    await this.addTodo(name, '주간 보스', '벨룸', 1);
+    await this.addTodo(name, '주간 보스', '핑크빈', 1);
+    await this.addTodo(name, '주간 보스', '시그너스', 1);
+    await this.addTodo(name, '주간 보스', '스우', 1);
+    await this.addTodo(name, '주간 보스', '데미안', 1);
+    await this.addTodo(name, '주간 보스', '가디언 엔젤 슬라임', 1);
+    await this.addTodo(name, '주간 보스', '루시드', 1);
+    await this.addTodo(name, '주간 보스', '윌', 1);
+    await this.addTodo(name, '주간 보스', '거대 괴수 더스크', 1);
+    await this.addTodo(name, '주간 보스', '진 힐라', 1);
+    await this.addTodo(name, '주간 보스', '친위대장 듄켈', 1);
+    await this.addTodo(name, '주간 보스', '선택받은 세렌', 1);
+    await this.addTodo(name, '주간 보스', '감시자 칼로스', 1);
+    await this.addTodo(name, '주간 보스', '카링', 1);
 
-    await this.addTodo('월간 보스', '검은 마법사', 1);
+    await this.addTodo(name, '월간 보스', '검은 마법사', 1);
   }
 
   async getCharacters(accessToken) {
