@@ -40,6 +40,7 @@ export class InfoService {
     data.level = `${data.level} Lv`;
     data.lanking = data.lanking.substring(0, data.lanking.indexOf('\n'));
     data.lanking = `${data.lanking}위`;
+    if (data.guild === '') data.guild = '(없음)';
     return data;
   }
 }
