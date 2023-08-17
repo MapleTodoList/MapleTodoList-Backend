@@ -14,6 +14,11 @@ export class TodoController {
     this.todoService.updateTodoIsClear(character, section, todo);
   }
 
+  @Post('/')
+  getCharacters(@Body('token') token) {
+    return this.todoService.getCharacters(token);
+  }
+
   @Post('/character')
   addCharacter(@Body('name') name, @Body('token') token) {
     this.todoService.addCharacter(name, token);

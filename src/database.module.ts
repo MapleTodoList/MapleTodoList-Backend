@@ -19,7 +19,7 @@ import { Todo } from './todo/entities/todo.entity';
         password: config.get('DB_PASSWORD'),
         database: config.get('DB_DATABASE'),
         entities: [User, Character, Section, Todo],
-        synchronize: true,
+        synchronize: false,
         charset: 'utf8_general_ci',
       }),
     }),

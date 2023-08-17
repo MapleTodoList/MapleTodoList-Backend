@@ -132,6 +132,18 @@ export class TodoService {
     await this.addTodo('월간 보스', '검은 마법사', 1);
   }
 
+  async getCharacters(accessToken) {
+    const user = await this.userRepo.findOneBy({ accessToken });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const characters = await this.characterRepo.find({ where: { user } });
+
+    return characters;
+  }
+
   async getAllInfo(characterName) {
     const character = await this.characterRepo.findOne({
       where: { name: characterName },
