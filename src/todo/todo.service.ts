@@ -21,44 +21,74 @@ export class TodoService {
   ) {}
 
   async addCharacter(name, accessToken) {
-    const user = await this.userRepo.findOneBy({ accessToken: accessToken });
-    const newCharacter = await this.characterRepo.create({
-      user,
-      name,
-    });
-    await this.characterRepo.save(newCharacter);
-    this.firstAddCharacter(name);
+    try {
+      const user = await this.userRepo.findOne({ where: { accessToken } });
+      if (!user) {
+        throw new Error('사용자를 찾을 수 없습니다');
+      }
+
+      const newCharacter = await this.characterRepo.create({
+        user,
+        name,
+      });
+
+      await this.characterRepo.save(newCharacter);
+
+      await this.firstAddCharacter(name);
+    } catch (error) {
+      throw new Error('캐릭터 추가 중 오류가 발생했습니다');
+    }
   }
 
   async addSection(ch, name, reset, whenReset) {
-    const character = await this.characterRepo.findOneBy({ name: ch });
-    console.log(character);
-    const newSection = await this.sectionRepo.create({
-      character,
-      name,
-      reset,
-      whenReset,
-    });
-    await this.sectionRepo.save(newSection);
+    try {
+      const character = await this.characterRepo.findOne({
+        where: { name: ch },
+      });
+      if (!character) {
+        throw new Error('캐릭터를 찾을 수 없습니다');
+      }
+
+      const newSection = await this.sectionRepo.create({
+        character,
+        name,
+        reset,
+        whenReset,
+      });
+
+      await this.sectionRepo.save(newSection);
+    } catch (error) {
+      throw new Error('섹션 추가 중 오류가 발생했습니다');
+    }
   }
 
   async addTodo(characterName, sectionName, todoName, todoNumber) {
-    const character = await this.characterRepo.findOne({
-      where: { name: characterName },
-    });
+    try {
+      const character = await this.characterRepo.findOne({
+        where: { name: characterName },
+      });
+      if (!character) {
+        throw new Error('캐릭터를 찾을 수 없습니다');
+      }
 
-    const section = await this.sectionRepo.findOne({
-      where: { character, name: sectionName },
-    });
+      const section = await this.sectionRepo.findOne({
+        where: { character, name: sectionName },
+      });
+      if (!section) {
+        throw new Error('섹션을 찾을 수 없습니다');
+      }
 
-    const newTodo = this.todoRepo.create({
-      section,
-      name: todoName,
-      number: todoNumber,
-      isClear: 0,
-    });
+      const newTodo = this.todoRepo.create({
+        section,
+        name: todoName,
+        number: todoNumber,
+        isClear: 0,
+      });
 
-    await this.todoRepo.save(newTodo);
+      await this.todoRepo.save(newTodo);
+    } catch (error) {
+      throw new Error('할 일 추가 중 오류가 발생했습니다');
+    }
   }
 
   async firstAddCharacter(name) {
@@ -140,180 +170,288 @@ export class TodoService {
   }
 
   async getCharacters(accessToken) {
-    const user = await this.userRepo.findOneBy({ accessToken });
+    try {
+      const user = await this.userRepo.findOne({ where: { accessToken } });
 
-    const characters = await this.characterRepo.find({ where: { user } });
+      if (!user) {
+        throw new Error('사용자를 찾을 수 없습니다');
+      }
 
-    return characters;
+      const characters = await this.characterRepo.find({ where: { user } });
+
+      return characters;
+    } catch (error) {
+      throw new Error('캐릭터 정보를 가져오는 중 오류가 발생했습니다');
+    }
   }
 
   async getAllInfo(characterName) {
-    const character = await this.characterRepo.findOne({
-      where: { name: characterName },
-      relations: ['section'],
-    });
+    try {
+      const character = await this.characterRepo.findOne({
+        where: { name: characterName },
+        relations: ['section'],
+      });
 
-    const characterWithSectionsAndTodos = await Promise.all(
-      character.section.map(async (section) => {
-        const todos = await this.todoRepo.find({ where: { section } });
-        const todosWithValues = todos.map((todo) => ({
-          name: todo.name,
-          number: todo.number,
-          isClear: todo.isClear,
-        }));
-        return {
-          section,
-          todos: todosWithValues,
-        };
-      }),
-    );
+      if (!character) {
+        throw new Error('캐릭터를 찾을 수 없습니다');
+      }
 
-    return {
-      todoInfo: characterWithSectionsAndTodos,
-    };
+      const characterWithSectionsAndTodos = await Promise.all(
+        character.section.map(async (section) => {
+          const todos = await this.todoRepo.find({ where: { section } });
+          const todosWithValues = todos.map((todo) => ({
+            name: todo.name,
+            number: todo.number,
+            isClear: todo.isClear,
+          }));
+          return {
+            section,
+            todos: todosWithValues,
+          };
+        }),
+      );
+
+      return {
+        todoInfo: characterWithSectionsAndTodos,
+      };
+    } catch (error) {
+      throw new Error('캐릭터 정보를 가져오는 중 오류가 발생했습니다');
+    }
   }
 
   async updateTodoIsClear(characterName, sectionName, todoName) {
-    const character = await this.characterRepo.findOne({
-      where: { name: characterName },
-      relations: ['section'],
-    });
+    try {
+      const character = await this.characterRepo.findOne({
+        where: { name: characterName },
+        relations: ['section'],
+      });
 
-    const section = character.section.find((sec) => sec.name === sectionName);
+      if (!character) {
+        throw new Error('캐릭터를 찾을 수 없습니다');
+      }
 
-    const todo = await this.todoRepo.findOne({
-      where: { section, name: todoName },
-    });
+      const section = character.section.find((sec) => sec.name === sectionName);
 
-    todo.isClear += 1;
-    if (todo.isClear > todo.number) {
-      todo.isClear = 0;
+      if (!section) {
+        throw new Error('섹션을 찾을 수 없습니다');
+      }
+
+      const todo = await this.todoRepo.findOne({
+        where: { section, name: todoName },
+      });
+
+      if (!todo) {
+        throw new Error('할 일을 찾을 수 없습니다');
+      }
+
+      todo.isClear += 1;
+      if (todo.isClear > todo.number) {
+        todo.isClear = 0;
+      }
+
+      await this.todoRepo.save(todo);
+    } catch (error) {
+      throw new Error('할 일 업데이트 중 오류가 발생했습니다');
     }
-
-    await this.todoRepo.save(todo);
   }
 
   async updateCharacter(characterName, to) {
-    const character = await this.characterRepo.findOne({
-      where: { name: characterName },
-    });
+    try {
+      const character = await this.characterRepo.findOne({
+        where: { name: characterName },
+      });
 
-    character.name = to;
+      if (!character) {
+        throw new Error('캐릭터를 찾을 수 없습니다');
+      }
 
-    await this.characterRepo.save(character);
+      character.name = to;
+
+      await this.characterRepo.save(character);
+    } catch (error) {
+      throw new Error('캐릭터 업데이트 중 오류가 발생했습니다');
+    }
   }
 
   async updateSection(characterName, sectionName, field, to) {
-    const character = await this.characterRepo.findOne({
-      where: { name: characterName },
-      relations: ['section'],
-    });
+    try {
+      const character = await this.characterRepo.findOne({
+        where: { name: characterName },
+        relations: ['section'],
+      });
 
-    const section = character.section.find((sec) => sec.name === sectionName);
+      if (!character) {
+        throw new Error('캐릭터를 찾을 수 없습니다');
+      }
 
-    section[field] = to;
+      const section = character.section.find((sec) => sec.name === sectionName);
 
-    await this.sectionRepo.save(section);
+      if (!section) {
+        throw new Error('섹션을 찾을 수 없습니다');
+      }
+
+      section[field] = to;
+
+      await this.sectionRepo.save(section);
+    } catch (error) {
+      throw new Error('섹션 업데이트 중 오류가 발생했습니다');
+    }
   }
 
   async updateTodo(characterName, sectionName, todoName, field, to) {
-    const character = await this.characterRepo.findOne({
-      where: { name: characterName },
-      relations: ['section'],
-    });
+    try {
+      const character = await this.characterRepo.findOne({
+        where: { name: characterName },
+        relations: ['section'],
+      });
 
-    const section = character.section.find((sec) => sec.name === sectionName);
+      if (!character) {
+        throw new Error('캐릭터를 찾을 수 없습니다');
+      }
 
-    const todo = await this.todoRepo.findOne({
-      where: { section, name: todoName },
-    });
+      const section = character.section.find((sec) => sec.name === sectionName);
 
-    todo[field] = to;
+      if (!section) {
+        throw new Error('섹션을 찾을 수 없습니다');
+      }
 
-    await this.todoRepo.save(todo);
+      const todo = await this.todoRepo.findOne({
+        where: { section, name: todoName },
+      });
+
+      if (!todo) {
+        throw new Error('할 일을 찾을 수 없습니다');
+      }
+
+      todo[field] = to;
+
+      await this.todoRepo.save(todo);
+    } catch (error) {
+      throw new Error('할 일 업데이트 중 오류가 발생했습니다');
+    }
   }
 
   async deleteSection(characterName, sectionName) {
-    const character = await this.characterRepo.findOne({
-      where: { name: characterName },
-      relations: ['section'],
-    });
+    try {
+      const character = await this.characterRepo.findOne({
+        where: { name: characterName },
+        relations: ['section'],
+      });
 
-    const section = character.section.find((sec) => sec.name === sectionName);
+      if (!character) {
+        throw new Error('캐릭터를 찾을 수 없습니다');
+      }
 
-    // Load the section with its todos
-    const sectionWithTodos = await this.sectionRepo.findOne({
-      where: { id: section.id },
-      relations: ['todo'],
-    });
+      const section = character.section.find((sec) => sec.name === sectionName);
 
-    // Delete associated todos first
-    for (const todo of sectionWithTodos.todo) {
-      await this.todoRepo.remove(todo);
+      if (!section) {
+        throw new Error('섹션을 찾을 수 없습니다');
+      }
+
+      const sectionWithTodos = await this.sectionRepo.findOne({
+        where: { id: section.id },
+        relations: ['todo'],
+      });
+
+      if (!sectionWithTodos) {
+        throw new Error('할 일을 포함한 섹션을 찾을 수 없습니다');
+      }
+
+      for (const todo of sectionWithTodos.todo) {
+        await this.todoRepo.remove(todo);
+      }
+
+      await this.sectionRepo.remove(section);
+    } catch (error) {
+      throw new Error('섹션 삭제 중 오류가 발생했습니다');
     }
-
-    // Remove the section
-    await this.sectionRepo.remove(section);
   }
 
   async deleteTodo(characterName, sectionName, todoName) {
-    const character = await this.characterRepo.findOne({
-      where: { name: characterName },
-      relations: ['section'],
-    });
+    try {
+      const character = await this.characterRepo.findOne({
+        where: { name: characterName },
+        relations: ['section'],
+      });
 
-    const section = character.section.find((sec) => sec.name === sectionName);
+      if (!character) {
+        throw new Error('캐릭터를 찾을 수 없습니다');
+      }
 
-    const todo = await this.todoRepo.findOne({
-      where: { section, name: todoName },
-    });
+      const section = character.section.find((sec) => sec.name === sectionName);
 
-    // Remove the todo
-    await this.todoRepo.remove(todo);
+      if (!section) {
+        throw new Error('섹션을 찾을 수 없습니다');
+      }
+
+      const todo = await this.todoRepo.findOne({
+        where: { section, name: todoName },
+      });
+
+      if (!todo) {
+        throw new Error('할 일을 찾을 수 없습니다');
+      }
+
+      await this.todoRepo.remove(todo);
+    } catch (error) {
+      throw new Error('할 일 삭제 중 오류가 발생했습니다');
+    }
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async resetDailyTodo() {
-    const dailySections = await this.sectionRepo.find({
-      where: { reset: 'daily' },
-      relations: ['todo'],
-    });
+    try {
+      const dailySections = await this.sectionRepo.find({
+        where: { reset: 'daily' },
+        relations: ['todo'],
+      });
 
-    for (const section of dailySections) {
-      for (const todo of section.todo) {
-        todo.isClear = 0;
-        await this.todoRepo.save(todo);
+      for (const section of dailySections) {
+        for (const todo of section.todo) {
+          todo.isClear = 0;
+          await this.todoRepo.save(todo);
+        }
       }
+    } catch (error) {
+      throw new Error('일일 할 일 초기화 중 오류가 발생했습니다');
     }
   }
 
   @Cron('0 0 * *  SUN', { timeZone: 'Asia/Seoul' })
   async resetMondayTodo() {
-    const mondaySections = await this.sectionRepo.find({
-      where: { reset: 'weekly', whenReset: 'monday' },
-      relations: ['todo'],
-    });
+    try {
+      const mondaySections = await this.sectionRepo.find({
+        where: { reset: 'weekly', whenReset: 'monday' },
+        relations: ['todo'],
+      });
 
-    for (const section of mondaySections) {
-      for (const todo of section.todo) {
-        todo.isClear = 0;
-        await this.todoRepo.save(todo);
+      for (const section of mondaySections) {
+        for (const todo of section.todo) {
+          todo.isClear = 0;
+          await this.todoRepo.save(todo);
+        }
       }
+    } catch (error) {
+      throw new Error('월요일 할 일 초기화 중 오류가 발생했습니다');
     }
   }
 
   @Cron('0 0 * * WED', { timeZone: 'Asia/Seoul' })
   async resetThursdayTodo() {
-    const thursdaySections = await this.sectionRepo.find({
-      where: { reset: 'weekly', whenReset: 'thursday' },
-      relations: ['todo'],
-    });
+    try {
+      const thursdaySections = await this.sectionRepo.find({
+        where: { reset: 'weekly', whenReset: 'thursday' },
+        relations: ['todo'],
+      });
 
-    for (const section of thursdaySections) {
-      for (const todo of section.todo) {
-        todo.isClear = 0;
-        await this.todoRepo.save(todo);
+      for (const section of thursdaySections) {
+        for (const todo of section.todo) {
+          todo.isClear = 0;
+          await this.todoRepo.save(todo);
+        }
       }
+    } catch (error) {
+      throw new Error('목요일 할 일 초기화 중 오류가 발생했습니다');
     }
   }
 }
