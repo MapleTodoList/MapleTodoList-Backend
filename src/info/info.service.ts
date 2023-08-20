@@ -9,6 +9,9 @@ export class InfoService {
       const Html = await axios.get(`https://maple.gg/u/${name}`);
       const $ = load(Html.data);
       const data = {
+        name: $(
+          '#user-profile > section > div.row.row-normal > div.col-lg-8 > div > h3 > b',
+        ).text(),
         level: $(
           '#user-profile > section > div.row.row-normal > div.col-lg-8 > div > div.user-summary > ul > li:nth-child(1)',
         ).text(),
