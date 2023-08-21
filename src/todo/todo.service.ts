@@ -20,14 +20,16 @@ export class TodoService {
     private readonly todoRepo: Repository<Todo>,
   ) {}
 
-  async addCharacter(name, accessToken) {
+  async addCharacter(name: string, accessToken: string): Promise<void> {
     try {
-      const user = await this.userRepo.findOne({ where: { accessToken } });
+      const user: User = await this.userRepo.findOne({
+        where: { accessToken },
+      });
       if (!user) {
         throw new Error('사용자를 찾을 수 없습니다');
       }
 
-      const newCharacter = await this.characterRepo.create({
+      const newCharacter: Character = await this.characterRepo.create({
         user,
         name,
       });
@@ -40,16 +42,21 @@ export class TodoService {
     }
   }
 
-  async addSection(ch, name, reset, whenReset) {
+  async addSection(
+    ch: string,
+    name: string,
+    reset: string,
+    whenReset: string,
+  ): Promise<void> {
     try {
-      const character = await this.characterRepo.findOne({
+      const character: Character = await this.characterRepo.findOne({
         where: { name: ch },
       });
       if (!character) {
         throw new Error('캐릭터를 찾을 수 없습니다');
       }
 
-      const newSection = await this.sectionRepo.create({
+      const newSection: Section = await this.sectionRepo.create({
         character,
         name,
         reset,
@@ -62,23 +69,28 @@ export class TodoService {
     }
   }
 
-  async addTodo(characterName, sectionName, todoName, todoNumber) {
+  async addTodo(
+    characterName: string,
+    sectionName: string,
+    todoName: string,
+    todoNumber: number,
+  ): Promise<void> {
     try {
-      const character = await this.characterRepo.findOne({
+      const character: Character = await this.characterRepo.findOne({
         where: { name: characterName },
       });
       if (!character) {
         throw new Error('캐릭터를 찾을 수 없습니다');
       }
 
-      const section = await this.sectionRepo.findOne({
+      const section: Section = await this.sectionRepo.findOne({
         where: { character, name: sectionName },
       });
       if (!section) {
         throw new Error('섹션을 찾을 수 없습니다');
       }
 
-      const newTodo = this.todoRepo.create({
+      const newTodo: Todo = this.todoRepo.create({
         section,
         name: todoName,
         number: todoNumber,
@@ -91,7 +103,7 @@ export class TodoService {
     }
   }
 
-  async firstAddCharacter(name) {
+  async firstAddCharacter(name: string): Promise<void> {
     await this.addSection(name, '일일 컨텐츠', 'daily', 'everyday');
     await this.addSection(name, '일일 보스', 'daily', 'everyday');
     await this.addSection(name, '일일 심볼', 'daily', 'everyday');
@@ -169,15 +181,19 @@ export class TodoService {
     await this.addTodo(name, '월간 보스', '검은 마법사', 1);
   }
 
-  async getCharacters(accessToken) {
+  async getCharacters(accessToken: string): Promise<Character[]> {
     try {
-      const user = await this.userRepo.findOne({ where: { accessToken } });
+      const user: User = await this.userRepo.findOne({
+        where: { accessToken },
+      });
 
       if (!user) {
         throw new Error('사용자를 찾을 수 없습니다');
       }
 
-      const characters = await this.characterRepo.find({ where: { user } });
+      const characters: Character[] = await this.characterRepo.find({
+        where: { user },
+      });
 
       return characters;
     } catch (error) {
@@ -185,9 +201,9 @@ export class TodoService {
     }
   }
 
-  async getAllInfo(characterName) {
+  async getAllInfo(characterName: string) {
     try {
-      const character = await this.characterRepo.findOne({
+      const character: Character = await this.characterRepo.findOne({
         where: { name: characterName },
         relations: ['section'],
       });
@@ -198,7 +214,9 @@ export class TodoService {
 
       const characterWithSectionsAndTodos = await Promise.all(
         character.section.map(async (section) => {
-          const todos = await this.todoRepo.find({ where: { section } });
+          const todos: Todo[] = await this.todoRepo.find({
+            where: { section },
+          });
           const todosWithValues = todos.map((todo) => ({
             name: todo.name,
             number: todo.number,
@@ -219,9 +237,13 @@ export class TodoService {
     }
   }
 
-  async updateTodoIsClear(characterName, sectionName, todoName) {
+  async updateTodoIsClear(
+    characterName: string,
+    sectionName: string,
+    todoName: string,
+  ): Promise<void> {
     try {
-      const character = await this.characterRepo.findOne({
+      const character: Character = await this.characterRepo.findOne({
         where: { name: characterName },
         relations: ['section'],
       });
@@ -230,13 +252,15 @@ export class TodoService {
         throw new Error('캐릭터를 찾을 수 없습니다');
       }
 
-      const section = character.section.find((sec) => sec.name === sectionName);
+      const section: Section = character.section.find(
+        (sec) => sec.name === sectionName,
+      );
 
       if (!section) {
         throw new Error('섹션을 찾을 수 없습니다');
       }
 
-      const todo = await this.todoRepo.findOne({
+      const todo: Todo = await this.todoRepo.findOne({
         where: { section, name: todoName },
       });
 
@@ -255,9 +279,9 @@ export class TodoService {
     }
   }
 
-  async updateCharacter(characterName, to) {
+  async updateCharacter(characterName: string, to: string): Promise<void> {
     try {
-      const character = await this.characterRepo.findOne({
+      const character: Character = await this.characterRepo.findOne({
         where: { name: characterName },
       });
 
@@ -273,9 +297,14 @@ export class TodoService {
     }
   }
 
-  async updateSection(characterName, sectionName, field, to) {
+  async updateSection(
+    characterName: string,
+    sectionName: string,
+    field: string,
+    to: string,
+  ): Promise<void> {
     try {
-      const character = await this.characterRepo.findOne({
+      const character: Character = await this.characterRepo.findOne({
         where: { name: characterName },
         relations: ['section'],
       });
@@ -284,7 +313,9 @@ export class TodoService {
         throw new Error('캐릭터를 찾을 수 없습니다');
       }
 
-      const section = character.section.find((sec) => sec.name === sectionName);
+      const section: Section = character.section.find(
+        (sec) => sec.name === sectionName,
+      );
 
       if (!section) {
         throw new Error('섹션을 찾을 수 없습니다');
@@ -298,9 +329,15 @@ export class TodoService {
     }
   }
 
-  async updateTodo(characterName, sectionName, todoName, field, to) {
+  async updateTodo(
+    characterName: string,
+    sectionName: string,
+    todoName: string,
+    field: string,
+    to: string,
+  ): Promise<void> {
     try {
-      const character = await this.characterRepo.findOne({
+      const character: Character = await this.characterRepo.findOne({
         where: { name: characterName },
         relations: ['section'],
       });
@@ -309,13 +346,15 @@ export class TodoService {
         throw new Error('캐릭터를 찾을 수 없습니다');
       }
 
-      const section = character.section.find((sec) => sec.name === sectionName);
+      const section: Section = character.section.find(
+        (sec) => sec.name === sectionName,
+      );
 
       if (!section) {
         throw new Error('섹션을 찾을 수 없습니다');
       }
 
-      const todo = await this.todoRepo.findOne({
+      const todo: Todo = await this.todoRepo.findOne({
         where: { section, name: todoName },
       });
 
@@ -331,9 +370,12 @@ export class TodoService {
     }
   }
 
-  async deleteSection(characterName, sectionName) {
+  async deleteSection(
+    characterName: string,
+    sectionName: string,
+  ): Promise<void> {
     try {
-      const character = await this.characterRepo.findOne({
+      const character: Character = await this.characterRepo.findOne({
         where: { name: characterName },
         relations: ['section'],
       });
@@ -342,13 +384,15 @@ export class TodoService {
         throw new Error('캐릭터를 찾을 수 없습니다');
       }
 
-      const section = character.section.find((sec) => sec.name === sectionName);
+      const section: Section = character.section.find(
+        (sec) => sec.name === sectionName,
+      );
 
       if (!section) {
         throw new Error('섹션을 찾을 수 없습니다');
       }
 
-      const sectionWithTodos = await this.sectionRepo.findOne({
+      const sectionWithTodos: Section = await this.sectionRepo.findOne({
         where: { id: section.id },
         relations: ['todo'],
       });
@@ -367,9 +411,13 @@ export class TodoService {
     }
   }
 
-  async deleteTodo(characterName, sectionName, todoName) {
+  async deleteTodo(
+    characterName: string,
+    sectionName: string,
+    todoName: string,
+  ): Promise<void> {
     try {
-      const character = await this.characterRepo.findOne({
+      const character: Character = await this.characterRepo.findOne({
         where: { name: characterName },
         relations: ['section'],
       });
@@ -378,13 +426,15 @@ export class TodoService {
         throw new Error('캐릭터를 찾을 수 없습니다');
       }
 
-      const section = character.section.find((sec) => sec.name === sectionName);
+      const section: Section = character.section.find(
+        (sec) => sec.name === sectionName,
+      );
 
       if (!section) {
         throw new Error('섹션을 찾을 수 없습니다');
       }
 
-      const todo = await this.todoRepo.findOne({
+      const todo: Todo = await this.todoRepo.findOne({
         where: { section, name: todoName },
       });
 
@@ -399,9 +449,9 @@ export class TodoService {
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async resetDailyTodo() {
+  async resetDailyTodo(): Promise<void> {
     try {
-      const dailySections = await this.sectionRepo.find({
+      const dailySections: Section[] = await this.sectionRepo.find({
         where: { reset: 'daily' },
         relations: ['todo'],
       });
@@ -418,9 +468,9 @@ export class TodoService {
   }
 
   @Cron('0 0 * *  SUN', { timeZone: 'Asia/Seoul' })
-  async resetMondayTodo() {
+  async resetMondayTodo(): Promise<void> {
     try {
-      const mondaySections = await this.sectionRepo.find({
+      const mondaySections: Section[] = await this.sectionRepo.find({
         where: { reset: 'weekly', whenReset: 'monday' },
         relations: ['todo'],
       });
@@ -437,9 +487,9 @@ export class TodoService {
   }
 
   @Cron('0 0 * * WED', { timeZone: 'Asia/Seoul' })
-  async resetThursdayTodo() {
+  async resetThursdayTodo(): Promise<void> {
     try {
-      const thursdaySections = await this.sectionRepo.find({
+      const thursdaySections: Section[] = await this.sectionRepo.find({
         where: { reset: 'weekly', whenReset: 'thursday' },
         relations: ['todo'],
       });
